@@ -17,10 +17,6 @@ fn main() {
     }
 
     println!("Sum pt. 2: {}", sum);
-
-
-
-
 }
 
 fn read_lines<P>(filename: P) -> Vec<String>
@@ -59,7 +55,7 @@ fn parse_line_mixed(line: String) -> u32 {
         } else {
             for end in 2..5 {
                 if i + end < line_copy.len() {
-                    let sub = String::from_iter(&line_copy[i..=i+end]);
+                    let sub = String::from_iter(&line_copy[i..=i + end]);
 
                     let num: char = match sub.as_str() {
                         "one" => '1',
@@ -77,7 +73,7 @@ fn parse_line_mixed(line: String) -> u32 {
                     digits.push(num)
                 }
             }
-            continue
+            continue;
         }
     }
 
@@ -91,8 +87,6 @@ fn parse_line_mixed(line: String) -> u32 {
 
     let num = num_string.parse::<u32>().unwrap();
     num
-
-
 }
 
 #[cfg(test)]
@@ -124,7 +118,6 @@ mod tests {
         let line: String = "abcone2threexyz".into();
         let parsed = parse_line_mixed(line);
         assert_eq!(parsed, 13);
-
     }
 
     #[test]
