@@ -98,18 +98,16 @@ fn main() {
 
     println!("Part 1 sum: {}", sum);
 
-
     let sum = lines
         .iter()
         .map(|l| Bag::from_game(&Game::new(l)).power())
-        .fold(0, |acc, x| acc+x );
+        .fold(0, |acc, x| acc + x);
 
     println!("Part 2 sum: {}", sum);
 }
 
 /// Make sure all games are valid for the given bag contents
 fn pt1_validate_game(game: &Game, bag: &Bag) -> bool {
-    
     for p in &game.picks {
         if p.red > bag.red {
             return false;
