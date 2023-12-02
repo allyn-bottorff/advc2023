@@ -10,7 +10,6 @@ struct Bag {
 }
 impl Bag {
     fn from_game(game: &Game) -> Self {
-
         let mut red_max = 0;
         let mut blue_max = 0;
         let mut green_max = 0;
@@ -83,13 +82,11 @@ struct Pick {
 
 fn main() {
     let lines = read_lines("input.txt");
-        let bag = Bag {
-            red: 12,
-            green: 13,
-            blue: 14,
-        };
-
-    
+    let bag = Bag {
+        red: 12,
+        green: 13,
+        blue: 14,
+    };
 
     let mut sum = 0;
     for line in &lines {
@@ -109,20 +106,19 @@ fn main() {
     }
 
     println!("Part 2 sum: {}", sum);
-
 }
 
 // Make sure all games are valid for the given bag contents
 fn pt1_validate_game(game: &Game, bag: &Bag) -> bool {
     for p in &game.picks {
         if p.red > bag.red {
-            return false
+            return false;
         }
         if p.blue > bag.blue {
-            return false
+            return false;
         }
         if p.green > bag.green {
-            return false 
+            return false;
         }
     }
     true
@@ -232,9 +228,7 @@ mod tests {
             red: 4,
             green: 2,
             blue: 6,
-
         };
         assert_eq!(bag, bag_literal)
-
     }
 }
