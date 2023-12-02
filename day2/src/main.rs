@@ -98,12 +98,11 @@ fn main() {
 
     println!("Part 1 sum: {}", sum);
 
-    let mut sum = 0;
-    for line in &lines {
-        let game = Game::new(line);
-        let bag = Bag::from_game(&game);
-        sum += bag.power();
-    }
+
+    let sum = lines
+        .iter()
+        .map(|l| Bag::from_game(&Game::new(l)).power())
+        .fold(0, |acc, x| acc+x );
 
     println!("Part 2 sum: {}", sum);
 }
