@@ -108,8 +108,9 @@ fn main() {
     println!("Part 2 sum: {}", sum);
 }
 
-// Make sure all games are valid for the given bag contents
+/// Make sure all games are valid for the given bag contents
 fn pt1_validate_game(game: &Game, bag: &Bag) -> bool {
+    
     for p in &game.picks {
         if p.red > bag.red {
             return false;
@@ -124,7 +125,7 @@ fn pt1_validate_game(game: &Game, bag: &Bag) -> bool {
     true
 }
 
-//Read all lines into a vec of strings. Crash if something isn't right.
+/// Read all lines into a vec of strings. Crash if something isn't right.
 fn read_lines<P>(filename: P) -> Vec<String>
 where
     P: AsRef<Path>,
