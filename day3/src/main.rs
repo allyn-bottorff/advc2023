@@ -35,7 +35,7 @@ fn find_numbers(line: &String) -> Vec<PartNumber> {
                 start = i;
             }
             num_chars.push(c);
-            if i + 1 > line.chars().collect::<Vec<_>>().len() {
+            if i + 1 >= line.chars().collect::<Vec<_>>().len() {
                 let part = PartNumber {
                     num: num_chars.parse::<u32>().unwrap(),
                     end: i,
@@ -107,6 +107,26 @@ mod tests {
     #[test]
     fn test_find_numbers_2() {
         let test = String::from("..35..633.");
+
+        let found_parts = find_numbers(&test);
+
+        let expected_parts = vec![
+            PartNumber {
+                num: 35,
+                start: 2,
+                end: 3,
+            },
+            PartNumber {
+                num: 633,
+                start: 6,
+                end: 8,
+            },
+        ];
+        assert_eq!(found_parts, expected_parts)
+    }
+    #[test]
+    fn test_find_numbers_3() {
+        let test = String::from("..35..633");
 
         let found_parts = find_numbers(&test);
 
