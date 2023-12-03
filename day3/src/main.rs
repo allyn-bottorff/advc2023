@@ -84,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    fn test_find_numbers() {
+    fn test_find_numbers_1() {
         let test = String::from("467..114..");
 
         let found_parts = find_numbers(&test);
@@ -99,6 +99,27 @@ mod tests {
                 num: 114,
                 start: 5,
                 end: 7,
+            },
+        ];
+        assert_eq!(found_parts, expected_parts)
+    }
+
+    #[test]
+    fn test_find_numbers_2() {
+        let test = String::from("..35..633.");
+
+        let found_parts = find_numbers(&test);
+
+        let expected_parts = vec![
+            PartNumber {
+                num: 35,
+                start: 2,
+                end: 3,
+            },
+            PartNumber {
+                num: 633,
+                start: 6,
+                end: 8,
             },
         ];
         assert_eq!(found_parts, expected_parts)
