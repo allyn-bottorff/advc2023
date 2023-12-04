@@ -94,12 +94,12 @@ fn main() {
                 None => continue,
             }
         }
-        if i == stack.len() - 1{
-            break
+        if i == stack.len() - 1 {
+            break;
         }
         i += 1;
     }
-    
+
     let mut sum = 0;
 
     for deck in stack {
