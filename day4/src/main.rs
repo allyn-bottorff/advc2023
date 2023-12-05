@@ -61,7 +61,6 @@ impl Card {
 }
 
 fn main() {
-    println!("Hello, world!");
 
     let content = std::fs::read_to_string("input.txt").unwrap();
     let lines = content.lines();
