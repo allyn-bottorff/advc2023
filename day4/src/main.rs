@@ -61,7 +61,6 @@ impl Card {
 }
 
 fn main() {
-
     let content = std::fs::read_to_string("input.txt").unwrap();
     let lines = content.lines();
 
@@ -76,19 +75,18 @@ fn main() {
     let lines = content.lines();
     let mut stack: Vec<Vec<&Card>> = Vec::new();
     stack.push(Vec::new());
-    let originals:Vec<Card> = lines.map(|l| Card::from_string(l)).collect();
+    let originals: Vec<Card> = lines.map(|l| Card::from_string(l)).collect();
 
     for j in 0..originals.len() {
         match originals[j].won_cards() {
             Some(w) => {
                 for c in w {
-                    stack[0].push(&originals[c-1])
+                    stack[0].push(&originals[c - 1])
                 }
             }
             None => continue,
         }
     }
-
 
     let mut i: usize = 0;
     loop {
