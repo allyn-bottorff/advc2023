@@ -38,15 +38,12 @@ fn main() {
 
     println!("margin: {}", margin);
 
-    let race: (i64, i64) = (61677571,430103613071150);
+    let race: (i64, i64) = (61677571, 430103613071150);
 
     let count = count_winning_press_times(&race);
 
     println!("count: {}", count);
-
-    
 }
-
 
 fn count_winning_press_times(race: &(i64, i64)) -> u64 {
     /*
@@ -60,7 +57,6 @@ fn count_winning_press_times(race: &(i64, i64)) -> u64 {
     let (r_time, r_record) = race;
     let mut count = 0;
 
-
     for p in 1..=*r_time {
         if p * (r_time - p) > *r_record {
             count += 1;
@@ -68,7 +64,6 @@ fn count_winning_press_times(race: &(i64, i64)) -> u64 {
     }
 
     count
-
 }
 
 #[cfg(test)]
@@ -77,9 +72,7 @@ mod tests {
 
     #[test]
     fn test_count_winning_press_times() {
-        let count = count_winning_press_times(&(71530,940200));
+        let count = count_winning_press_times(&(71530, 940200));
         assert_eq!(71503, count)
-
-
     }
 }
