@@ -125,10 +125,19 @@ fn parse_file(content: &String) -> Instructions {
     for line in content.lines() {
         if line.contains("seeds:") {
             let (_, seeds_str) = line.split_once(":").unwrap();
-            seeds = seeds_str
+            let seed_ranges: Vec<i64> = seeds_str
                 .split_whitespace()
                 .map(|x| x.parse::<i64>().unwrap())
                 .collect();
+            let mut i: usize = 0;
+            while i <= seed_ranges.len() - 1 {
+                let start = seed_ranges[i];
+                let end = seed_ranges[i] + seed_ranges[i + 1];
+                for seed_num in start..end {
+                    seeds.push(seed_num)
+                }
+                i += 2;
+            }
             continue;
         }
         if line.contains("seed-to-soil map:") {
