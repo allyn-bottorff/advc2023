@@ -11,28 +11,28 @@ enum MapType {
 }
 
 struct Map {
-    source_range: Range<i32>,
-    offset: i32,
+    source_range: Range<i64>,
+    offset: i64,
 }
 impl Map {
     fn from_line(line: &str) -> Self {
-        let numbers: Vec<i32> = line
+        let numbers: Vec<i64> = line
             .split_whitespace()
-            .map(|n| n.parse::<i32>().unwrap())
+            .map(|n| n.parse::<i64>().unwrap())
             .collect();
 
         Map {
             source_range: Range {
-                start: numbers[0],
-                end: numbers[0] + numbers[2],
+                start: numbers[1],
+                end: numbers[1] + numbers[2],
             },
-            offset: numbers[2] - numbers[1],
+            offset: numbers[0] - numbers[1],
         }
     }
 }
 
 struct Instructions {
-    seeds: Vec<i32>,
+    seeds: Vec<i64>,
     seed_to_soil: Vec<Map>,
     soil_to_fert: Vec<Map>,
     fert_to_water: Vec<Map>,
@@ -43,62 +43,75 @@ struct Instructions {
 }
 
 fn main() {
-    let content = std::fs::read_to_string("example.txt").unwrap();
+    let content = std::fs::read_to_string("input.txt").unwrap();
     let instructions = parse_file(&content);
 
-    let loc = seed_to_loc(79, instructions);
-    println!("{}", loc);
+    let mut locations = Vec::new();
+    for seed in &instructions.seeds {
+        locations.push(seed_to_loc(seed, &instructions));
+    }
+
+    let lowest = locations.iter().min().unwrap();
+    println!("lowest location: {}", lowest);
 }
 
-fn seed_to_loc(seed: i32, instructions: Instructions) -> i32 {
-    let mut inter: i32 = seed;
-    for map in instructions.seed_to_soil {
+fn seed_to_loc(seed: &i64, instructions: &Instructions) -> i64 {
+    let mut inter: i64 = *seed;
+    // println!("seed: {}", seed);
+    for map in &instructions.seed_to_soil {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.soil_to_fert {
+    // println!("soil: {}", inter);
+    for map in &instructions.soil_to_fert {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.fert_to_water {
+    // println!("fertilizer: {}", inter);
+    for map in &instructions.fert_to_water {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.water_to_light {
+    // println!("water: {}", inter);
+    for map in &instructions.water_to_light {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.light_to_temp {
+    // println!("light: {}", inter);
+    for map in &instructions.light_to_temp {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.temp_to_humid {
+    // println!("temperature: {}", inter);
+    for map in &instructions.temp_to_humid {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
-    for map in instructions.humid_to_loc {
+    // println!("humidity: {}", inter);
+    for map in &instructions.humid_to_loc {
         if map.source_range.contains(&inter) {
             inter += map.offset;
-            break
+            break;
         }
     }
+    // println!("location: {}", inter);
     inter
 }
 
 fn parse_file(content: &String) -> Instructions {
-    let mut seeds: Vec<i32> = Vec::new();
+    let mut seeds: Vec<i64> = Vec::new();
     let mut map_type: MapType = MapType::SeedToSoil;
 
     let mut seed_to_soil: Vec<Map> = Vec::new();
@@ -114,7 +127,7 @@ fn parse_file(content: &String) -> Instructions {
             let (_, seeds_str) = line.split_once(":").unwrap();
             seeds = seeds_str
                 .split_whitespace()
-                .map(|x| x.parse::<i32>().unwrap())
+                .map(|x| x.parse::<i64>().unwrap())
                 .collect();
             continue;
         }
