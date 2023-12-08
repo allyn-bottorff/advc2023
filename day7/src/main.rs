@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 fn main() {
     let contents = std::fs::read_to_string("example.txt").unwrap();
 
@@ -8,6 +10,7 @@ fn main() {
         .collect();
 
     println!("{:?}", plays);
+    let _score = score_hand("32T3K");
 }
 
 /// Score Hands
@@ -24,58 +27,58 @@ fn score_hand(hand: &str) -> u8 {
     let mut found_triples = 0;
     let mut found_doubles = 0;
 
-    let mut quantities: Vec<u8> = vec![0; 13];
-    for i in 0..hand.len() {
-        for j in 0..hand.len() {
-            if hand[i] == hand[j] {
-                let index = match hand[i] {
-                    '2' => 0,
-                    '3' => 1,
-                    '4' => 2,
-                    '5' => 3,
-                    '6' => 4,
-                    '7' => 5,
-                    '8' => 6,
-                    '9' => 7,
-                    'T' => 8,
-                    'J' => 9,
-                    'Q' => 10,
-                    'K' => 11,
-                    'A' => 12,
-                    _ => panic!("unexpected card char"),
-                };
-                quantities[index] += 1;
-            }
-        }
+    let mut card_map = HashMap::from([
+                                ('2', 0),
+                                ('3', 0),
+                                ('4', 0),
+                                ('5', 0),
+                                ('6', 0),
+                                ('7', 0),
+                                ('8', 0),
+                                ('9', 0),
+                                ('T', 0),
+                                ('J', 0),
+                                ('K', 0),
+                                ('Q', 0),
+                                ('A', 0),
+    ]);
+
+    for i in hand {
+        let count = card_map.get(&i).unwrap();
+        card_map.insert(i, count + 1);
     }
-    for q in quantities {
-        if q == 5 {
+
+    println!("quantities: {:?}", card_map);
+    for q in card_map {
+        if q.1 == 5 {
             score = 7;
-                break
+            break;
         }
-        if q == 4 {
+        if q.1 == 4 {
             score = 5;
-            break
+            break;
         }
-        if q == 3 {
+        if q.1 == 3 {
             found_triples += 1;
         }
-        if q == 2 {
+        if q.1 == 2 {
             found_doubles += 1;
         }
-
+    }
+    if found_triples == 1 {
+        if found_doubles == 1 {
+        score = 6;
+        } else {
+            score = 4;
+        }
+    } else {
         if found_doubles == 2 {
             score = 3
         }
-        if found_triples ==1 && found_doubles == 1{
-            score = 6
-        }
-        if found_doubles == 1{
+        if found_doubles == 1 {
             score = 2
         }
-
     }
-
 
     score
 }
@@ -118,6 +121,12 @@ mod tests {
     }
     #[test]
     fn test_score_hand_3() {
+        let hand = "QQQJA";
+        let score = score_hand(hand);
+        assert_eq!(4, score)
+    }
+    #[test]
+    fn test_score_hand_4() {
         let hand = "QQQJA";
         let score = score_hand(hand);
         assert_eq!(4, score)
