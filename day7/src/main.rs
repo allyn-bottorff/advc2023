@@ -1,32 +1,26 @@
-use std::{collections::HashMap, cmp::Ordering};
+use std::{cmp::Ordering, collections::HashMap};
 
 fn main() {
     let contents = std::fs::read_to_string("input.txt").unwrap();
 
-    let mut plays: Vec<Play> = contents
-        .lines()
-        .map(|x| Play::from_str(x))
-        .collect();
+    let mut plays: Vec<Play> = contents.lines().map(|x| Play::from_str(x)).collect();
 
     // println!("{:#?}", plays);
 
     plays.sort();
 
-    // println!("{:#?}", plays);
+    println!("{:#?}", plays);
 
     let mut sum: u32 = 0;
 
     for (i, play) in plays.into_iter().enumerate() {
-        sum += play.bid * u32::try_from(i+1).unwrap();
+        sum += play.bid * u32::try_from(i + 1).unwrap();
     }
 
     println!("sum of bets: {}", sum);
-
-
-
 }
 
-#[derive(Debug,Eq)]
+#[derive(Debug, Eq)]
 struct Play {
     hand: String,
     bid: u32,
@@ -48,18 +42,16 @@ impl Ord for Play {
                         Ordering::Equal => continue,
                     };
                 }
-                return Ordering::Equal
-            },
+                return Ordering::Equal;
+            }
         };
     }
-
 }
 
 impl PartialOrd for Play {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
-
 }
 
 impl PartialEq for Play {
@@ -90,9 +82,6 @@ impl Play {
     /// Quint:          7
     fn score_hand(&mut self) {
         let hand: Vec<char> = self.hand.chars().collect();
-        let mut score = 1;
-        let mut found_triples = 0;
-        let mut found_doubles = 0;
 
         let mut card_map = HashMap::from([
             ('2', 0),
@@ -115,36 +104,104 @@ impl Play {
             card_map.insert(i, count + 1);
         }
 
-        for q in card_map {
-            if q.1 == 5 {
-                score = 7;
-                break;
+        let jokers = card_map.get(&'J').unwrap().clone();
+
+        let score = match jokers {
+            5 => 7,
+            4 => 7,
+            3 => {
+                let mut temp_count = 6;
+                for q in &card_map {
+                    if *q.0 != 'J' {
+                        if *q.1 == 2 {
+                            temp_count = 7;
+                            break;
+                        }
+                    }
+                }
+                temp_count
             }
-            if q.1 == 4 {
-                score = 6;
-                break;
+            2 => {
+                let mut temp_score = 4;
+                for q in &card_map {
+                    if *q.0 != 'J' {
+                        if *q.1 == 3 {
+                            temp_score = 7;
+                            break;
+                        }
+                        if *q.1 == 2 {
+                            temp_score = 6;
+                            break;
+                        }
+                    }
+                }
+                temp_score
             }
-            if q.1 == 3 {
-                found_triples += 1;
+            1 => {
+                let mut temp_score = 2;
+                let mut found_double = false;
+                for q in &card_map {
+                    if *q.0 != 'J' {
+                        if *q.1 == 4 {
+                            temp_score = 7;
+                            break;
+                        }
+                        if *q.1 == 3 {
+                            temp_score = 6;
+                            break;
+                        }
+                        if *q.1 == 2 {
+                            if !found_double {
+                                temp_score = 4;
+                                found_double = true;
+                            } else {
+                                temp_score = 5;
+                                break;
+                            }
+                        }
+                    }
+                }
+                temp_score
             }
-            if q.1 == 2 {
-                found_doubles += 1;
+            0 => {
+                let mut temp_score = 1;
+                let mut found_double = false;
+                let mut found_triple = false;
+                for q in &card_map {
+                    if *q.1 == 5 {
+                        temp_score = 7;
+                        break;
+                    }
+                    if *q.1 == 4 {
+                        temp_score = 6;
+                        break;
+                    }
+                    if *q.1 == 3 {
+                        temp_score = 4;
+                        found_triple = true;
+                        if found_double == true {
+                            temp_score = 5;
+                            break;
+                        }
+                    }
+                    if *q.1 == 2 {
+                        if found_triple == true {
+                            temp_score = 5;
+                            break;
+                        }
+                        if !found_double {
+                            temp_score = 2;
+                            found_double = true;
+                        } else {
+                            temp_score = 3;
+                            break;
+                        }
+                    }
+                }
+                temp_score
             }
-        }
-        if found_triples == 1 {
-            if found_doubles == 1 {
-                score = 5;
-            } else {
-                score = 4;
-            }
-        } else {
-            if found_doubles == 2 {
-                score = 3
-            }
-            if found_doubles == 1 {
-                score = 2
-            }
-        }
+            _ => panic!("too many jokers"),
+        };
 
         self.score = score;
     }
@@ -152,6 +209,7 @@ impl Play {
 
 fn card_val(card: &char) -> u8 {
     match card {
+        'J' => 1,
         '2' => 2,
         '3' => 3,
         '4' => 4,
@@ -161,10 +219,9 @@ fn card_val(card: &char) -> u8 {
         '8' => 8,
         '9' => 9,
         'T' => 10,
-        'J' => 11,
-        'Q' => 12,
-        'K' => 13,
-        'A' => 14,
+        'Q' => 11,
+        'K' => 12,
+        'A' => 13,
         _ => panic!("unexpected card char"),
     }
 }
@@ -190,12 +247,56 @@ mod tests {
     fn test_score_hand_3() {
         let s = "QQQJA 3";
         let play = Play::from_str(s);
-        assert_eq!(4, play.score)
+        assert_eq!(6, play.score)
     }
     #[test]
     fn test_score_hand_4() {
-        let s = "QQQJA 5";
+        let s = "QQJJA 5";
+        let play = Play::from_str(s);
+        assert_eq!(6, play.score)
+    }
+    #[test]
+    fn test_score_hand_5() {
+        let s = "JJ2K8 5";
         let play = Play::from_str(s);
         assert_eq!(4, play.score)
+    }
+    #[test]
+    fn test_score_hand_6() {
+        let s = "KJT64 2";
+        let play = Play::from_str(s);
+        assert_eq!(2, play.score)
+    }
+    #[test]
+    fn test_score_hand_7() {
+        let s = "9AJ89 2";
+        let play = Play::from_str(s);
+        assert_eq!(4, play.score)
+    }
+    #[test]
+    fn test_score_hand_8() {
+        let s = "J8899 2";
+        let play = Play::from_str(s);
+        assert_eq!(5, play.score)
+    }
+    #[test]
+    fn test_score_hand_9() {
+        let s = "88899 2";
+        let play = Play::from_str(s);
+        assert_eq!(5, play.score)
+    }
+
+    #[test]
+    fn test_functional_pt2() {
+        let contents = std::fs::read_to_string("example.txt").unwrap();
+        let mut plays: Vec<Play> = contents.lines().map(|x| Play::from_str(x)).collect();
+
+        plays.sort();
+        let mut sum: u32 = 0;
+
+        for (i, play) in plays.into_iter().enumerate() {
+            sum += play.bid * u32::try_from(i + 1).unwrap();
+        }
+        assert_eq!(5905, sum)
     }
 }
