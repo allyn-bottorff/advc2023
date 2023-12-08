@@ -1,86 +1,153 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, cmp::Ordering};
 
 fn main() {
-    let contents = std::fs::read_to_string("example.txt").unwrap();
+    let contents = std::fs::read_to_string("input.txt").unwrap();
 
-    let plays: Vec<(&str, u32)> = contents
+    let mut plays: Vec<Play> = contents
         .lines()
-        .map(|x| x.split_once(" ").unwrap())
-        .map(|x| (x.0, x.1.parse::<u32>().unwrap()))
+        .map(|x| Play::from_str(x))
         .collect();
 
-    println!("{:?}", plays);
-    let _score = score_hand("32T3K");
+    // println!("{:#?}", plays);
+
+    plays.sort();
+
+    // println!("{:#?}", plays);
+
+    let mut sum: u32 = 0;
+
+    for (i, play) in plays.into_iter().enumerate() {
+        sum += play.bid * u32::try_from(i+1).unwrap();
+    }
+
+    println!("sum of bets: {}", sum);
+
+
+
 }
 
-/// Score Hands
-/// High Card:      1
-/// One Pair:       2
-/// Two Pair:       3
-/// Triple:         4
-/// Quad:           5
-/// Full House:     6
-/// Quint:          7
-fn score_hand(hand: &str) -> u8 {
-    let hand: Vec<char> = hand.chars().collect();
-    let mut score = 1;
-    let mut found_triples = 0;
-    let mut found_doubles = 0;
+#[derive(Debug,Eq)]
+struct Play {
+    hand: String,
+    bid: u32,
+    score: u8,
+}
 
-    let mut card_map = HashMap::from([
-                                ('2', 0),
-                                ('3', 0),
-                                ('4', 0),
-                                ('5', 0),
-                                ('6', 0),
-                                ('7', 0),
-                                ('8', 0),
-                                ('9', 0),
-                                ('T', 0),
-                                ('J', 0),
-                                ('K', 0),
-                                ('Q', 0),
-                                ('A', 0),
-    ]);
-
-    for i in hand {
-        let count = card_map.get(&i).unwrap();
-        card_map.insert(i, count + 1);
+impl Ord for Play {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.score.cmp(&other.score) {
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => {
+                let self_chars = &self.hand.chars().collect::<Vec<char>>();
+                let other_chars = &other.hand.chars().collect::<Vec<char>>();
+                for i in 0..self.hand.len() {
+                    match &card_val(&self_chars[i]).cmp(&card_val(&other_chars[i])) {
+                        Ordering::Greater => return Ordering::Greater,
+                        Ordering::Less => return Ordering::Less,
+                        Ordering::Equal => continue,
+                    };
+                }
+                return Ordering::Equal
+            },
+        };
     }
 
-    println!("quantities: {:?}", card_map);
-    for q in card_map {
-        if q.1 == 5 {
-            score = 7;
-            break;
-        }
-        if q.1 == 4 {
-            score = 5;
-            break;
-        }
-        if q.1 == 3 {
-            found_triples += 1;
-        }
-        if q.1 == 2 {
-            found_doubles += 1;
-        }
+}
+
+impl PartialOrd for Play {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
-    if found_triples == 1 {
-        if found_doubles == 1 {
-        score = 6;
+
+}
+
+impl PartialEq for Play {
+    fn eq(&self, other: &Self) -> bool {
+        self.score == other.score
+    }
+}
+
+impl Play {
+    fn from_str(s: &str) -> Self {
+        let (hand, bet) = s.split_once(" ").unwrap();
+
+        let mut play = Play {
+            hand: hand.to_string(),
+            bid: bet.parse::<u32>().unwrap(),
+            score: 0,
+        };
+        play.score_hand();
+        play
+    }
+    /// Score Hands
+    /// High Card:      1
+    /// One Pair:       2
+    /// Two Pair:       3
+    /// Triple:         4
+    /// Full House:     5
+    /// Quad:           6
+    /// Quint:          7
+    fn score_hand(&mut self) {
+        let hand: Vec<char> = self.hand.chars().collect();
+        let mut score = 1;
+        let mut found_triples = 0;
+        let mut found_doubles = 0;
+
+        let mut card_map = HashMap::from([
+            ('2', 0),
+            ('3', 0),
+            ('4', 0),
+            ('5', 0),
+            ('6', 0),
+            ('7', 0),
+            ('8', 0),
+            ('9', 0),
+            ('T', 0),
+            ('J', 0),
+            ('K', 0),
+            ('Q', 0),
+            ('A', 0),
+        ]);
+
+        for i in hand {
+            let count = card_map.get(&i).unwrap();
+            card_map.insert(i, count + 1);
+        }
+
+        for q in card_map {
+            if q.1 == 5 {
+                score = 7;
+                break;
+            }
+            if q.1 == 4 {
+                score = 6;
+                break;
+            }
+            if q.1 == 3 {
+                found_triples += 1;
+            }
+            if q.1 == 2 {
+                found_doubles += 1;
+            }
+        }
+        if found_triples == 1 {
+            if found_doubles == 1 {
+                score = 5;
+            } else {
+                score = 4;
+            }
         } else {
-            score = 4;
+            if found_doubles == 2 {
+                score = 3
+            }
+            if found_doubles == 1 {
+                score = 2
+            }
         }
-    } else {
-        if found_doubles == 2 {
-            score = 3
-        }
-        if found_doubles == 1 {
-            score = 2
-        }
-    }
 
-    score
+        self.score = score;
+    }
 }
 
 fn card_val(card: &char) -> u8 {
@@ -104,31 +171,31 @@ fn card_val(card: &char) -> u8 {
 
 #[cfg(test)]
 mod tests {
-    use crate::score_hand;
+    use super::*;
 
     #[test]
     fn test_score_hand_1() {
-        let hand = "32T3K";
-        let score = score_hand(hand);
-        assert_eq!(2, score)
+        let s = "32T3K 0";
+        let play = Play::from_str(s);
+        assert_eq!(2, play.score)
     }
 
     #[test]
     fn test_score_hand_2() {
-        let hand = "KK677";
-        let score = score_hand(hand);
-        assert_eq!(3, score)
+        let s = "KK677 12";
+        let play = Play::from_str(s);
+        assert_eq!(3, play.score)
     }
     #[test]
     fn test_score_hand_3() {
-        let hand = "QQQJA";
-        let score = score_hand(hand);
-        assert_eq!(4, score)
+        let s = "QQQJA 3";
+        let play = Play::from_str(s);
+        assert_eq!(4, play.score)
     }
     #[test]
     fn test_score_hand_4() {
-        let hand = "QQQJA";
-        let score = score_hand(hand);
-        assert_eq!(4, score)
+        let s = "QQQJA 5";
+        let play = Play::from_str(s);
+        assert_eq!(4, play.score)
     }
 }
