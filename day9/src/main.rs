@@ -19,7 +19,10 @@ fn main() {
     for line in numbers {
         let mut found_zeroes = false;
         let mut history_vecs: Vec<Vec<i32>> = Vec::new();
-        history_vecs.push(line.clone());
+        let mut line = line.clone();
+        line.reverse();
+
+        history_vecs.push(line);
         while !found_zeroes {
             let mut new_line: Vec<i32> = Vec::new();
             let current_line = history_vecs.last().unwrap();
