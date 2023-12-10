@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone)]
 enum Dirs {
     Left,
@@ -71,24 +70,33 @@ fn main() {
         }
     }
 
-    let mut pos = 0;
+    let mut count_of_starts = 0;
+
+    let mut pos_vec: Vec<usize> = Vec::new();
+    let mut steps_vec: Vec<u32> = Vec::new();
+
     for i in 0..nodes.len() {
-        if nodes[i].id == String::from("AAA") {
-            pos = i;
+        if nodes[i].id.chars().last().unwrap() == 'A' {
+            pos_vec.push(i);
+            steps_vec.push(0);
+            count_of_starts += 1;
         }
     }
 
-    //walk the graph
-    let mut steps = 0;
+    for (p, mut pos) in pos_vec.into_iter().enumerate() {
+        //walk the graph
+        let mut steps = 0;
 
-    for step in dir_seq.into_iter().cycle() {
-        pos = match step {
-            Dirs::Left => nodes[pos].left,
-            Dirs::Right => nodes[pos].right,
-        };
-        steps += 1;
-        if nodes[pos].id == String::from("ZZZ") {
-            break;
+        for step in dir_seq.clone().into_iter().cycle() {
+            pos = match step {
+                Dirs::Left => nodes[pos].left,
+                Dirs::Right => nodes[pos].right,
+            };
+            steps += 1;
+            if nodes[pos].id.chars().last().unwrap() == 'Z' {
+                steps_vec[p] = steps;
+                break;
+            }
         }
     }
 
@@ -96,5 +104,6 @@ fn main() {
     println!("{:?}", nodes.len());
     println!("{:?}", node_strings.len());
 
-    println!("Steps taken: {}", steps);
+    println!("Steps taken: {:?}", steps_vec);
+    println!("starts: {}", count_of_starts);
 }
