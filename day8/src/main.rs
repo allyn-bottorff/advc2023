@@ -1,6 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 enum Dirs {
     Left,
     Right,
@@ -12,8 +11,6 @@ struct Node {
     left: usize,
     right: usize,
 }
-
-type NodeRef = Rc<RefCell<Node>>;
 
 fn main() {
     let contents = std::fs::read_to_string("input.txt").unwrap();
@@ -56,7 +53,6 @@ fn main() {
         });
     }
 
-
     //build connections between nodes
     for i in 0..nodes.len() {
         for j in 0..node_strings.len() {
@@ -82,8 +78,6 @@ fn main() {
         }
     }
 
-
-
     //walk the graph
     let mut steps = 0;
 
@@ -97,9 +91,6 @@ fn main() {
             break;
         }
     }
-
-
-
 
     println!("{:?}", nodes);
     println!("{:?}", nodes.len());
