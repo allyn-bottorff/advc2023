@@ -106,4 +106,6 @@ fn main() {
 
     println!("Steps taken: {:?}", steps_vec);
     println!("starts: {}", count_of_starts);
+    //TODO(alb): Get LCM of steps_vec. LCM in rust takes 2 inputs. Rather than recursing or doing
+    //something clever and functional, just print the vec and and get lcm from python. I'm tired.
 }
