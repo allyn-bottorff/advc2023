@@ -155,9 +155,6 @@ fn main() {
                 println!("Found start at: {},{}", x, y);
                 start = Point { x, y }
             }
-            if grid[y][x] == '.' {
-                println!("Found dot at: {},{}", x, y);
-            }
         }
     }
 
