@@ -1,7 +1,6 @@
+use itertools::Itertools;
 
-
-
-#[derive(PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 struct Point {
     x: usize,
     y: usize,
@@ -9,7 +8,6 @@ struct Point {
 
 impl Point {
     fn diff(&self, other: &Self) -> i32 {
-
         let x_diff = self.x as i32 - other.x as i32;
         let y_diff = self.y as i32 - other.y as i32;
 
@@ -17,9 +15,8 @@ impl Point {
     }
 }
 
-
 fn main() {
-    let contents = std::fs::read_to_string("example.txt").unwrap();
+    let contents = std::fs::read_to_string("input.txt").unwrap();
 
     let grid: Vec<Vec<char>> = contents.lines().map(|l| l.chars().collect()).collect();
     let mut galaxy_temp: Vec<Vec<char>> = Vec::new();
@@ -82,16 +79,12 @@ fn main() {
         }
     }
 
-    let mut distances: Vec<i32> = Vec::new();
+    let sum: i32 = found
+        .into_iter()
+        .combinations_with_replacement(2)
+        .map(|x| x[0].diff(&x[1]))
+        .filter(|x| x != &0)
+        .sum();
 
-    for p in &found {
-        for q in &found {
-            if p != q {
-                distances.push(p.diff(q));
-            }
-        }
-    }
-
-    println!("distances: {:?}", distances);
-    println!("length of distances: {:?}", distances.len());
+    println!("sum: {:?}", sum);
 }
