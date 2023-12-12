@@ -13,76 +13,87 @@ impl Point {
 
         x_diff.abs() + y_diff.abs()
     }
+
+    fn big_diff(&self, other: &Self, empty_xs: &Vec<usize>, empty_ys: &Vec<usize>) -> i64 {
+        let mut additional_x = 0;
+        let mut additional_y = 0;
+        let mut first: usize;
+        let mut second: usize;
+        if self.x > other.x {
+            first = other.x;
+            second = self.x;
+        } else {
+            first = self.x;
+            second = other.x;
+        }
+        for x in empty_xs {
+            if (first..second).contains(x) {
+                additional_x += 1_000_000 - 1;
+            }
+        }
+        let x_diff = additional_x + second as i64 - first as i64;
+        if self.y > other.y {
+            first = other.y;
+            second = self.y;
+        } else {
+            first = self.y;
+            second = other.y;
+        }
+        for y in empty_ys {
+            if (first..second).contains(y) {
+                additional_y += 1_000_000 - 1;
+            }
+        }
+
+        let y_diff = additional_y + second as i64 - first as i64;
+
+        x_diff + y_diff
+    }
 }
 
 fn main() {
     let contents = std::fs::read_to_string("input.txt").unwrap();
 
     let grid: Vec<Vec<char>> = contents.lines().map(|l| l.chars().collect()).collect();
-    let mut galaxy_temp: Vec<Vec<char>> = Vec::new();
 
-    let x_len = grid[0].len();
+    let mut empty_ys: Vec<usize> = Vec::new();
+    let mut empty_xs: Vec<usize> = Vec::new();
 
-    for line in &grid {
-        if !line.contains(&'#') {
-            galaxy_temp.push(vec!['.'; x_len]);
+    for y in 0..grid.len() {
+        if !grid[y].contains(&'#') {
+            empty_ys.push(y);
         }
-        galaxy_temp.push(line.clone());
     }
+    println!("{:?}", empty_ys);
 
-    let x_len = galaxy_temp[0].len();
-    let y_len = galaxy_temp.len();
-    let mut galaxy: Vec<Vec<char>> = Vec::new();
-    for _i in 0..y_len {
-        galaxy.push(Vec::new());
-    }
-
-    for x in 0..x_len {
+    for x in 0..grid[0].len() {
         let mut found_galaxy = false;
-        for y in 0..y_len {
-            if galaxy_temp[y][x] == '#' {
+        for y in 0..grid.len() {
+            if grid[y][x] == '#' {
                 found_galaxy = true;
             }
         }
-        for y in 0..y_len {
-            if found_galaxy == false {
-                galaxy[y].push('.');
-            }
-            galaxy[y].push(galaxy_temp[y][x]);
+        if !found_galaxy {
+            empty_xs.push(x);
         }
     }
 
-    for line in &grid {
-        for c in line {
-            print!("{}", c);
-        }
-        println!();
-    }
-
-    for line in &galaxy {
-        for c in line {
-            print!("{}", c);
-        }
-        println!();
-    }
-
-    let y_len = galaxy.len();
-    let x_len = galaxy[0].len();
+    println!("{:?}", empty_xs);
 
     let mut found: Vec<Point> = Vec::new();
 
-    for y in 0..y_len {
-        for x in 0..x_len {
-            if galaxy[y][x] == '#' {
+    for y in 0..grid.len() {
+        for x in 0..grid[0].len() {
+            if grid[y][x] == '#' {
                 found.push(Point { x, y });
             }
         }
     }
 
-    let sum: i32 = found
+    let sum: i64 = found
         .into_iter()
         .combinations_with_replacement(2)
-        .map(|x| x[0].diff(&x[1]))
+        .map(|x| x[0].big_diff(&x[1], &empty_xs, &empty_ys))
         .filter(|x| x != &0)
         .sum();
 
