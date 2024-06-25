@@ -1,3 +1,5 @@
 target/
 debug/
 Cargo.lock
+.zig-cache
+zig-out
